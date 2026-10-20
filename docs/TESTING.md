@@ -1,23 +1,50 @@
 # Testing Strategy
 
+**Authoritative for:** how we test and what counts as evidence. What must be true: [ACCEPTANCE-TESTS](ACCEPTANCE-TESTS.md). Tests are the enforcement mechanism for security and data rules.
+
+## Commands
+Defined by task T-010 and written here afterward: one command each for (1) format/lint, (2) unit tests, (3) full test suite including database tests. Until T-010 is done, no test commands exist and none may be claimed.
+
 ## Layers
-- Unit: validation, pricing, permissions, and status transitions.
-- Integration: database constraints, transactions, authentication, and API contracts.
-- End-to-end: critical customer and admin flows.
-- Bot: unapproved users, malformed callbacks, duplicate updates, timeouts, and retries.
-- Security: cross-seller access, admin-only operations, upload validation, and order tampering.
+| Layer | Covers |
+|-------|--------|
+| Unit | Pricing, validation, permissions, state transitions, normalization |
+| Database/integration | Constraints (price, stock, uniqueness, composite keys, restrict-on-delete), transactions, migrations on a fresh database, service operations |
+| Web | Page responses, authorization of every admin URL, form validation, CSRF, escaping, pagination caps |
+| Bot | Webhook secret, unlinked users, malformed/replayed updates, duplicate `update_id`, timeouts (Telegram calls mocked) |
+| Security | Cross-seller access, admin-only operations, upload abuse, order tampering |
+| Manual mobile check | Checklist below, run by the human before each phase gate |
 
-## Critical scenarios
-1. Public users see only approved catalog items.
-2. Seller A cannot read or modify Seller B's offers.
-3. Unapproved Telegram users cannot change data.
-4. Sellers can modify only permitted fields of their own offers.
-5. New canonical products require admin approval.
-6. Order totals are calculated server-side.
-7. Order items preserve snapshots after later edits.
-8. Duplicate order submissions do not create duplicate orders.
-9. Invalid uploads are rejected safely.
-10. Sensitive admin changes are audited.
-11. List endpoints enforce pagination limits.
+## Critical scenarios (each must have an automated test)
+1. Public users see only published products, active offers, active sellers.
+2. Seller A cannot read or change seller B's offers (Telegram path).
+3. Unlinked or revoked Telegram users cannot read or change anything.
+4. Sellers can change only price/stock/availability of their own offer variants.
+5. New canonical products and spec changes require admin approval.
+6. Order totals come from the server; tampered price/total/seller/status are ignored or rejected.
+7. Stale displayed price is rejected with `price_changed`.
+8. Order items keep snapshots after later edits/archival.
+9. Duplicate submission (same key) returns one order; two parallel submissions do not create duplicates.
+10. Confirmation under concurrency never makes stock negative.
+11. Invalid or oversize uploads are rejected safely.
+12. Sensitive admin changes create audit records.
+13. List operations enforce page-size caps.
+14. Every admin URL denies anonymous and non-admin users.
+15. Duplicate/replayed Telegram updates and reused confirmation tokens have no second effect.
 
-Use synthetic test data. Add regression tests for bugs. Never claim tests passed unless they were actually run. If tests cannot run, identify what remains unverified.
+## Rules
+- **Synthetic data only**; never real customer, seller, or credential data.
+- Every behavior change needs tests; every bug fix gets a regression test.
+- Tests must be deterministic and independent. Do not weaken, skip, delete, or loosen tests to make a task pass; if a test is wrong, stop and ask the human.
+- Concurrency tests use real database transactions, not mocks.
+- Report only commands actually run, with the observed result; list what was **not** run and why.
+
+## Evidence format (in the task report)
+`command` -> pass/fail counts (or the exact error). Failing or unrun tests are reported, never hidden.
+
+## Manual mobile checklist (human, per phase gate)
+- [ ] Listing, detail, order form usable on a phone screen without horizontal scrolling.
+- [ ] Works with JavaScript disabled.
+- [ ] Throttled-network run done; numbers recorded in [PERFORMANCE](PERFORMANCE.md).
+- [ ] Burmese and English text render correctly on the target phone.
+- [ ] Order submitted twice quickly (double tap) creates one order.
