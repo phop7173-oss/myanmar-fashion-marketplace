@@ -1,18 +1,45 @@
+# Secrets and local environment
 .env
 .env.*
 !.env.example
-node_modules/
+*.pem
+*.key
+secrets/
+
+# Backups and database dumps (contain personal data)
+backups/
+*.dump
+*.sql
+*.sqlite3
+
+# User uploads and generated media
+media/
+uploads/
+staticfiles/
+
+# Python
 .venv/
 venv/
 __pycache__/
+*.pyc
+.pytest_cache/
+.ruff_cache/
+.mypy_cache/
+htmlcov/
+.coverage
+
+# Node (only if Option A is chosen)
+node_modules/
 .next/
 out/
 dist/
 coverage/
 playwright-report/
 test-results/
+
+# Logs and editor/OS files
+*.log
 .DS_Store
 Thumbs.db
 .vscode/
 .idea/
-*.log

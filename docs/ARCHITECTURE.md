@@ -1,44 +1,61 @@
 # Architecture
 
+**Authoritative for:** system shape, module boundaries, trust boundaries, scope tiers. Technology names and versions: [TECH-STACK](TECH-STACK.md). Data: [DATA-MODEL](DATA-MODEL.md). Behavior: [API-CONTRACT](API-CONTRACT.md), [ORDER-WORKFLOW](ORDER-WORKFLOW.md).
+
 ## System shape
-One authoritative backend and database serve three interfaces:
-1. Customer storefront.
-2. Admin web interface.
-3. Telegram seller bot.
+One web application and one PostgreSQL database serve three interfaces:
+1. Customer storefront (server-rendered, mobile-first).
+2. Admin website.
+3. Telegram seller bot (webhook endpoint of the same application under the recommended baseline, [ADR-0005](decisions/0005-platform-baseline.md)).
 
-The Telegram bot calls authenticated backend APIs. It must not duplicate business rules or directly access the production database by default.
+```
+Customer browser ─┐
+Admin browser ────┼─> Views / Admin / Bot handlers (thin) ──> Service layer ──> Database
+Telegram ─────────┘        parse + present only            all business rules   constraints
+```
 
-## Proposed technology stack
-- Web: Next.js App Router.
-- Language: TypeScript with strict checking.
-- Styling: Tailwind CSS.
-- Database: PostgreSQL; Supabase is a candidate.
-- Seller bot: Python and python-telegram-bot.
-- Image processing: Sharp, subject to hosting compatibility.
-- Testing: Vitest and Playwright.
+Everything left of the service layer is untrusted input. The database enforces integrity as a second line of defense.
 
-These are proposals until the existing repository is inspected and the stack is approved.
+## Layering rules
+1. **Views, admin screens and bot handlers contain no business rules.** They validate shape, call one service operation, and render the result.
+2. **Service layer** owns: authorization checks, validation, price/total calculation, stock changes, status transitions, audit records, transactions.
+3. **Models/database** own: types, foreign keys, uniqueness, check constraints.
+4. A rule needed in two places is implemented once in the service layer and called from both.
+5. The bot never reads or writes database tables directly; it uses service operations only.
 
 ## Core domain model
-- product_id: shared canonical product.
-- offer_id: one seller's offer for a product.
-- variant_id: size/color or another product variant.
-- Offer-variant data: seller-specific price, stock, and availability.
-- Internal identifiers: immutable UUIDs.
-- Human-readable references: support purposes only, never authorization.
+See [DATA-MODEL](DATA-MODEL.md). In one line: product -> product variants; seller offer = (seller, product); offer variant = (offer, product variant) holding price and stock; order -> order items (snapshots).
 
-## Business invariants
-- One canonical product may have many seller offers.
-- Admin approval is required for new canonical products and canonical specification changes.
-- Sellers can modify only their own approved offers.
-- Orders preserve product, seller, variant, quantity, and price snapshots.
-- The server validates requests and calculates totals.
-- Database constraints protect relationships and uniqueness.
-- Use transactions for operations that must succeed or fail together.
-- Never use floating-point arithmetic for money.
+## Repository layout
+Defined by task T-010 and recorded here afterward. Until then **no application directories exist**; AI agents must not assume any.
 
-## Performance
-Use server-side pagination, optimized responsive images, bounded queries, minimal client JavaScript, and explicit stale-price/stock indicators.
+## Scope tiers
 
-## Architecture changes
-Record major changes to stack, database, API, security boundaries, or deployment in docs/decisions/.
+### Required for MVP
+- Public catalog: listing, product detail, basic search/category filter, pagination.
+- Admin: login, products/variants, images with permission record, sellers, offers/offer variants, draft review, orders, audit log.
+- Orders: guest order form, server-side pricing, idempotent submission, manual confirm/complete/cancel.
+- Telegram bot: account linking, My offers, update price, update stock, add-product draft.
+- Image processing (validation + responsive derivatives) done at upload time.
+- Automated tests, CI, local PostgreSQL, synthetic seed data.
+
+### Required before real customers (production)
+- Verified hosting with HTTPS and data export ([T-002](../tasks/cards/01-foundation.md), [T-063](../tasks/cards/04-pilot.md)).
+- Tested encrypted off-site backup and restore ([DEPLOYMENT](DEPLOYMENT.md)).
+- Security checklist passed ([SECURITY](SECURITY.md#pre-production-security-checklist)).
+- Dependency vulnerability scan; secret scan.
+- Privacy notice and retention rule (D-05); legal check (D-09).
+- Admin multi-factor authentication if supported by the chosen stack (UNVERIFIED).
+- Basic uptime/error monitoring.
+
+### Future enhancements (not specified yet)
+Burmese localization, seller photo uploads via bot, customer order tracking, notifications to sellers/customers, multi-seller carts, payments, delivery integration, search ranking, CDN, reservation of stock at submission, seller web dashboard.
+
+### Rejected or unnecessary for now
+Microservices, message queues, Redis/caching layers, separate search engine, GraphQL, single-page app framework, container orchestration, third-party analytics/chat/ad scripts, offer-specific image table (images share one table), custom authentication code, custom CSRF/session code.
+
+## Environments
+Local development (Ubuntu laptop) with synthetic data; production when verified. A separate preview environment is optional (cost). Never use production data or credentials in development. Details: [DEPLOYMENT](DEPLOYMENT.md).
+
+## Changing this document
+Material changes need an ADR approved by the owner ([decisions/README.md](decisions/README.md)).
