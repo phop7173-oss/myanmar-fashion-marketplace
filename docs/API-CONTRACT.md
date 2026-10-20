@@ -2,7 +2,7 @@
 
 **Authoritative for:** what operations exist, who may call them, and how they behave. Business rules: [ARCHITECTURE](ARCHITECTURE.md) layering. Order details: [ORDER-WORKFLOW](ORDER-WORKFLOW.md). Fields: [DATA-MODEL](DATA-MODEL.md).
 
-Every operation below is implemented **once** in the service layer. Web pages, admin screens, bot handlers (and, under Option A, HTTP endpoints) are only different front doors to the same operation with the same authorization.
+Every operation below is implemented **once** in the service layer. Web pages, admin screens, and bot handlers are only different front doors to the same operation with the same authorization.
 
 ## Rules for every operation
 1. Identity comes from verified authentication (admin session, verified Telegram numeric ID), never from request fields.

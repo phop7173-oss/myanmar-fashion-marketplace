@@ -1,6 +1,6 @@
 # Order Workflow
 
-**Authoritative for:** order submission, states, transitions, stock behavior. Depends on [ADR-0006](decisions/0006-mvp-order-model.md) (**Proposed**, D-03). Table fields: [DATA-MODEL](DATA-MODEL.md). Operations: [API-CONTRACT](API-CONTRACT.md).
+**Authoritative for:** order submission, states, transitions, stock behavior. Depends on [ADR-0006](decisions/0006-mvp-order-model.md) (**Accepted**, D-03). Table fields: [DATA-MODEL](DATA-MODEL.md). Operations: [API-CONTRACT](API-CONTRACT.md).
 
 ## States
 `submitted` -> `confirmed` -> `completed`; `submitted` or `confirmed` -> `cancelled`. No other transitions. `completed` and `cancelled` are final.

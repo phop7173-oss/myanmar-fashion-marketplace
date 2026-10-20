@@ -14,6 +14,10 @@ This is the **single authoritative list of project decisions**. Other documents 
 | 0002 | Platform order form, manual confirmation, no payment gateway, no built-in chat | [0002-manual-order-confirmation.md](0002-manual-order-confirmation.md) |
 | 0003 | Sellers operate through a guided Telegram bot; admin reviews new/sensitive catalog changes | [0003-telegram-seller-operations.md](0003-telegram-seller-operations.md) |
 | 0004 | One trust boundary: business rules live in one server-side service layer | [0004-single-trust-boundary.md](0004-single-trust-boundary.md) |
+| 0005 (D-01, D-08) | Single Python/Django web app, PostgreSQL, server-rendered HTML + plain CSS; Telegram bot as a webhook endpoint in the same app. **Hosting (D-02) is not part of this acceptance.** Accepted 2026-10-20 | [0005-platform-baseline.md](0005-platform-baseline.md) |
+| 0006 (D-03) | MVP order model: one seller per order, guest checkout, stock deducted at admin confirmation, manual delivery fee, payment outside the platform, no automatic notifications. Accepted 2026-10-20 | [0006-mvp-order-model.md](0006-mvp-order-model.md) |
+
+Accepted 2026-10-20 without a separate ADR: **D-06** image policy (admin uploads only; seller photos via Telegram deferred; permission recorded per image; see [DATA-MODEL](../DATA-MODEL.md)) and **D-07** tunable defaults (stale threshold 7 days, max quantity per item 10, large price-change warning 50%, page size 20/max 50; categories: tops, bottoms, dresses, outerwear, traditional wear, footwear, accessories, other; see [PROJECT](../PROJECT.md)).
 
 Also accepted (from the original charter, no separate ADR needed): English-first interface, clothing/fashion first, curated sellers only, zero-budget pilot, authorized images only, development on the owner's Ubuntu laptop, GitHub as source of truth, humans approve requirements/security/architecture/releases.
 
@@ -21,14 +25,9 @@ Also accepted (from the original charter, no separate ADR needed): English-first
 
 | ID | Question | Recommended default | Blocks | Detail |
 |----|----------|---------------------|--------|--------|
-| D-01 | Technology baseline (language/framework/UI approach) | Single Python/Django web app, server-rendered, plain CSS (beginner-friendly, one language, built-in admin/auth/CSRF) | T-010 and everything after | [0005](0005-platform-baseline.md) |
 | D-02 | Hosting + database provider under zero budget | None chosen. Verify candidates in T-002 | T-063; real-world webhook testing | [0005](0005-platform-baseline.md), [TECH-STACK](../TECH-STACK.md) |
-| D-03 | MVP order model (one seller per order, guest checkout, reserve stock at confirmation, delivery fee set manually, payment outside platform) | As listed | T-040 | [0006](0006-mvp-order-model.md) |
 | D-04 | Business operations: revenue model, who delivers, returns policy, how payment happens, pilot success thresholds | None. Owner must define | T-064 (go/no-go) | [PROJECT](../PROJECT.md) |
 | D-05 | Customer data retention period and privacy notice | Erase/anonymize personal data 12 months after order completion (PROVISIONAL) | T-064 | [SECURITY](../SECURITY.md) |
-| D-06 | Image sourcing policy: who supplies images, how permission is recorded | Admin uploads only; seller photos via Telegram deferred; permission recorded per image | T-025, T-033 | [DATA-MODEL](../DATA-MODEL.md) |
-| D-07 | Tunable defaults: stale threshold 7 days, max quantity per item 10, large price-change warning 50%, page size 20/max 50, category list | As listed; category list: tops, bottoms, dresses, outerwear, traditional wear, footwear, accessories, other | Nothing (defaults apply until changed); category list needed by T-020 | [PROJECT](../PROJECT.md) |
-| D-08 | Telegram bot delivery mode: webhook vs polling | Webhook (no always-on worker needed) | T-052 | [0005](0005-platform-baseline.md), [INTEGRATIONS](../INTEGRATIONS.md) |
 | D-09 | Legal/regulatory check for operating in Myanmar (registration, e-commerce, data protection) | Human task; AI cannot advise | Launch with real customers | [PROJECT](../PROJECT.md) |
 
 ## When to write an ADR

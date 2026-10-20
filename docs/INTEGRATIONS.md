@@ -7,9 +7,9 @@ Telegram Bot API only. No email, SMS, payment, analytics, chat, CDN, or map serv
 
 ## Telegram bot
 
-### Delivery mode (D-08, recommended: webhook)
+### Delivery mode (D-08, accepted: webhook)
 - Telegram sends updates to an HTTPS URL of the application. Each request must carry the configured secret token header; otherwise respond 403 and do nothing.
-- Polling requires an always-on process and is used only if the chosen host cannot receive webhooks.
+- Polling requires an always-on process and is used only if the chosen host cannot receive webhooks (would need a new decision).
 - Verify the Bot API facts used here (secret-token header, button data size limit, rate limits) against Telegram's official documentation when implementing (UNVERIFIED, TECH-STACK U7).
 
 ### Identity and linking

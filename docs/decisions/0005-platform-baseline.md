@@ -1,5 +1,5 @@
 # ADR-0005: Platform baseline (technology, hosting, bot mode)
-- Status: **Proposed** (needs owner approval: covers D-01, D-02, D-08)
+- Status: **Accepted for D-01 and D-08** (Owner, 2026-10-20: Option B, Django; Telegram webhook mode). **D-02 (hosting) is NOT decided** and remains open; it will be proposed in a new ADR by task T-002.
 - Date: 2026-10-20
 - Decision owner: Project owner
 
@@ -14,8 +14,8 @@ Concerns with the original proposal:
 5. Tailwind and Sharp add a Node build toolchain; client-side React adds JavaScript weight for slow networks.
 6. Free-tier terms (commercial use, inactivity pausing, backups) of the candidate hosts are not verified.
 
-## Decision (recommended; Option B)
-**Option B (recommended): one Python web application using Django**
+## Decision (accepted: Option B)
+**Option B (accepted): one Python web application using Django**
 - PostgreSQL database.
 - Server-rendered HTML templates, one small hand-written CSS file, almost no JavaScript.
 - Django's built-in admin for the admin website (customized as needed), built-in authentication, CSRF protection, ORM (parameterized queries) and migrations.
@@ -24,7 +24,7 @@ Concerns with the original proposal:
 - pytest for tests; ruff for lint/format.
 - Hosting: not chosen. See T-002 and [TECH-STACK](../TECH-STACK.md).
 
-**Option A (original proposal): Next.js + TypeScript + Tailwind + PostgreSQL + separate Python bot.** Still viable. If the owner prefers A: keep Option B's rules on data, security and workflow; replace the stack-specific parts of TECH-STACK.md, CODE-STYLE.md and the tool names in task cards; the bot calls authenticated HTTP endpoints; drop the Supabase anon key unless Row Level Security is deliberately designed.
+**Option A (original proposal): Next.js + TypeScript + Tailwind + PostgreSQL + separate Python bot.** Not chosen by the Owner on 2026-10-20; kept for reference. If A is ever revisited: keep Option B's rules on data, security and workflow; replace the stack-specific parts of TECH-STACK.md, CODE-STYLE.md and the tool names in task cards; the bot calls authenticated HTTP endpoints; drop the Supabase anon key unless Row Level Security is deliberately designed.
 
 ## Alternatives considered
 - Other Python/Node frameworks: no advantage over Django for this scope; Django has the most built-in security and admin functionality.

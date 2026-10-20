@@ -1,6 +1,6 @@
 # Code Style
 
-**Authoritative for:** how code is written so a beginner can read, review and maintain it. Python/Django rules apply to the recommended baseline ([ADR-0005](decisions/0005-platform-baseline.md)); if Option A is chosen, replace the Python-specific lines with strict-TypeScript equivalents.
+**Authoritative for:** how code is written so a beginner can read, review and maintain it. Python/Django rules apply to the accepted baseline ([ADR-0005](decisions/0005-platform-baseline.md)).
 
 ## Readability for a beginner (most important)
 1. Prefer plain, explicit code over clever code. No metaprogramming, dynamic attribute tricks, or deep inheritance.

@@ -1,12 +1,12 @@
 # ADR-0006: MVP order model
-- Status: **Proposed** (needs owner approval: D-03)
+- Status: **Accepted** (Owner, 2026-10-20; all seven defaults accepted without changes)
 - Date: 2026-10-20
 - Decision owner: Project owner
 
 ## Context
 The original docs say "orders contain one or more items" and "manual confirmation" but do not define who the customer is, whether a cart may mix sellers, when stock is reserved, how price changes during ordering are handled, or who sets the delivery fee.
 
-## Decision (recommended defaults)
+## Decision (accepted)
 1. **One seller per order.** All items in an order belong to the same seller's offer(s). (A multi-seller cart would need separate confirmation and delivery per seller.)
 2. **Guest checkout.** No customer accounts. No customer order-lookup page in the MVP; admin contacts the customer. The customer sees an order reference on the confirmation page.
 3. **Prices:** whole-kyat integer MMK only. The order form carries the price the customer saw; if the current price differs, the server rejects with a conflict and shows the new price (customer must re-submit).

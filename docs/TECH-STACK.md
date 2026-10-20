@@ -1,17 +1,17 @@
 # Technology Stack
 
-**Authoritative for:** chosen technologies, dependency policy, items needing external verification. Rationale and alternatives: [ADR-0005](decisions/0005-platform-baseline.md) (**Proposed**, pending D-01).
+**Authoritative for:** chosen technologies, dependency policy, items needing external verification. Rationale and alternatives: [ADR-0005](decisions/0005-platform-baseline.md) (**Accepted** for D-01 and D-08; hosting D-02 still open).
 
-> Until the owner approves ADR-0005, **no dependency may be installed and no project scaffold created.**
+> ADR-0005 is Accepted, but **no dependency is installed and no scaffold is created until task T-010 starts with an Owner-approved plan** (AGENTS.md R8).
 
-## Recommended baseline (Option B)
+## Chosen baseline (Option B, accepted)
 | Area | Choice | Notes |
 |------|--------|-------|
 | Language | Python (current supported 3.x; version chosen and pinned in T-010) | One language for web, admin and bot |
 | Web framework | Django | Built-in auth, admin, CSRF, ORM, migrations |
 | Database | PostgreSQL | Same engine locally and in production |
 | UI | Server-rendered templates, one small hand-written CSS file, minimal vanilla JavaScript only where required | No client framework, no Tailwind, no web fonts |
-| Telegram | Webhook endpoint in the same app; plain HTTPS calls or a small maintained library chosen in T-052 | Polling only if D-08 says so |
+| Telegram | Webhook endpoint in the same app; plain HTTPS calls or a small maintained library chosen in T-052 | Webhook mode accepted (D-08); polling only if the chosen host cannot receive webhooks |
 | Images | Pillow | Processing at upload time |
 | Tests | pytest (+ Django test support) | Browser end-to-end tests optional, added only if needed |
 | Lint/format | ruff | One tool |
@@ -19,8 +19,8 @@
 
 Exact package versions are **not** fixed in documentation. T-010 selects current supported releases, records them in the committed lockfile, and states the choice in the task report.
 
-## Alternative (Option A: original proposal)
-Next.js (App Router), strict TypeScript, Tailwind, PostgreSQL, Sharp, Vitest, Playwright, separate Python bot worker. If chosen, update this file, [CODE-STYLE](CODE-STYLE.md) and task cards, and remove the unused Supabase variables from `.env.example` (see ADR-0005).
+## Not chosen (Option A: original proposal)
+Next.js (App Router), strict TypeScript, Tailwind, PostgreSQL, Sharp, Vitest, Playwright, separate Python bot worker. If ever revisited, update this file, [CODE-STYLE](CODE-STYLE.md) and task cards, and remove the unused Supabase variables from `.env.example` (see ADR-0005).
 
 ## Dependency policy
 - Every new dependency (library, tool, GitHub Action, external service) needs owner approval via the plan step ([AI-WORKFLOW](AI-WORKFLOW.md)). The request states purpose, why existing/standard-library code is not enough, license, maintenance status, install size, and cost.

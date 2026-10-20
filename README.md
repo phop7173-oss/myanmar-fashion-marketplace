@@ -5,7 +5,7 @@ A mobile-first, low-bandwidth marketplace for clothing and fashion in Myanmar, b
 ## Current status
 - **Phase 0: documentation and decisions. No application code exists yet.** Nothing has been built, tested or deployed.
 - Documentation baseline v2 is written and **awaiting Owner review** (task T-000, see [tasks/CURRENT.md](tasks/CURRENT.md)).
-- Next: the Owner resolves the blocking decisions (T-001) so scaffolding can begin.
+- T-001 (blocking decisions) is **Ready for review**: D-01 (Django), D-03 (order model), D-06, D-07 and D-08 (webhook) are accepted. Hosting (D-02) is still open (T-002). Scaffolding (T-010) starts only after the Owner marks T-000 and T-001 Done.
 
 ## Where to look (single source of truth per topic)
 | Topic | Document |
@@ -31,8 +31,8 @@ A mobile-first, low-bandwidth marketplace for clothing and fashion in Myanmar, b
 Each rule is stated in one place; other documents link to it.
 
 ## Decisions
-- **Final:** shared canonical catalog; manual orders with no payments or chat; Telegram seller bot with admin review; one server-side rule layer; English-first; clothing first; curated sellers; zero budget; authorized images only.
-- **Need Owner approval:** technology baseline (D-01), hosting (D-02), order model (D-03), business operations (D-04), privacy retention (D-05), image policy (D-06), defaults (D-07), bot mode (D-08), legal check (D-09). Details and blocking relationships: [decisions/README.md](docs/decisions/README.md).
+- **Final:** shared canonical catalog; manual orders with no payments or chat; Telegram seller bot with admin review; one server-side rule layer; English-first; clothing first; curated sellers; zero budget; authorized images only; Django baseline (D-01); MVP order model (D-03); admin-only image uploads (D-06); tunable defaults (D-07); Telegram webhook mode (D-08).
+- **Need Owner approval:** hosting (D-02), business operations (D-04), privacy retention (D-05), legal check (D-09). Details and blocking relationships: [decisions/README.md](docs/decisions/README.md).
 
 ## How to start a development task (human or AI)
 1. Open [tasks/CURRENT.md](tasks/CURRENT.md) and read the task card it names.
