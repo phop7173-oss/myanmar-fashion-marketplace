@@ -9,7 +9,16 @@
 - Termux is for documentation and Git synchronization only; application work happens on the laptop.
 
 ## Configuration
-Environment variables only; names documented in `.env.example` with empty or placeholder values. The application validates required variables at startup and fails with a clear message that does not print secret values. Debug mode off, unique secret key, allowed hosts set, HTTPS enforced in production.
+Environment variables only; names documented in `.env.example` with empty or placeholder values. The application validates required variables at startup (`config/env.py`) and fails with a clear message that does not print secret values. Debug mode off, unique secret key, allowed hosts set, HTTPS enforced in production.
+
+| Variable | Read by | Rule |
+|----------|---------|------|
+| `APP_ENV` | T-011 | Required; `development` or `production`; debug is on only for `development` |
+| `SECRET_KEY` | T-011 | Production: required, at least 50 characters with at least 5 different characters, not a placeholder; development: optional |
+| `ALLOWED_HOSTS` | T-011 | Production: required, comma-separated, no `*`; development defaults to `localhost,127.0.0.1` |
+| `DATABASE_URL`, `IMAGE_STORAGE_PATH`, `TELEGRAM_*`, `PUBLIC_BASE_URL` | later tasks (T-012, T-025, T-052) | Not read yet |
+
+HTTPS enforcement (redirect, HSTS, secure cookies) depends on the chosen host and is done in T-063.
 
 ## Hosting selection (T-002)
 Before choosing, record evidence for each UNVERIFIED item U1-U12 (source link + date) and answer: Does it allow a commercial pilot? Does it receive HTTPS webhooks? Can we run `pg_dump` and keep an off-site copy? Does the database pause or expire? Is signup possible from Myanmar? What happens when quotas are exceeded (stop vs bill)? Prefer options that **stop** rather than **bill**.

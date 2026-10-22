@@ -1,25 +1,19 @@
-# Purpose: project settings for the T-010 skeleton. T-011 will extend env handling and
-# startup validation; T-012 will add the PostgreSQL database.
+# Purpose: project settings. Environment handling is in config/env.py (T-011);
+# T-012 will add the PostgreSQL database.
 import os
 from pathlib import Path
 
+from config.env import read_config
+
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-# Local-only placeholder so tests and `runserver` work. It is NOT a secret and must never
-# be used in production; T-011 will make a real SECRET_KEY mandatory outside development.
-DEVELOPMENT_ONLY_SECRET_KEY = "development-only-not-a-secret"  # noqa: S105
+# Validated at import time, so a bad configuration stops the app at startup with a clear
+# message (see config/env.py). Debug is on only when APP_ENV is explicitly "development".
+_config = read_config(os.environ)
 
-APP_ENV = os.environ.get("APP_ENV", "production")
-IS_DEVELOPMENT = APP_ENV == "development"
-
-# Debug is off unless APP_ENV is explicitly "development" (safe default).
-DEBUG = IS_DEVELOPMENT
-SECRET_KEY = os.environ.get("SECRET_KEY", DEVELOPMENT_ONLY_SECRET_KEY)
-ALLOWED_HOSTS = [
-    host.strip()
-    for host in os.environ.get("ALLOWED_HOSTS", "localhost,127.0.0.1").split(",")
-    if host.strip()
-]
+DEBUG = _config.is_development
+SECRET_KEY = _config.secret_key
+ALLOWED_HOSTS = list(_config.allowed_hosts)
 
 INSTALLED_APPS = [
     "django.contrib.staticfiles",

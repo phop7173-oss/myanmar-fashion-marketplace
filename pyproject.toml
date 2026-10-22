@@ -9,9 +9,11 @@ target-version = "py312"
 select = ["E", "F", "I", "B", "S", "UP", "ANN"]
 
 [tool.ruff.lint.per-file-ignores]
-# `assert` is how pytest tests check results.
-"**/tests/**" = ["S101"]
+# In tests only: `assert` is how pytest checks results (S101); fake secret values are
+# intentional (S105); the git/Python subprocesses run fixed commands, never user input
+# (S603, S607).
+"**/tests/**" = ["S101", "S105", "S603", "S607"]
 
 [tool.pytest.ini_options]
-DJANGO_SETTINGS_MODULE = "config.settings"
+DJANGO_SETTINGS_MODULE = "config.settings_test"
 python_files = ["test_*.py"]

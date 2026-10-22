@@ -4,7 +4,7 @@ A mobile-first, low-bandwidth marketplace for clothing and fashion in Myanmar, b
 
 ## Current status
 - **Phase 1 started.** The documentation baseline and decisions are in place; the only application code is a placeholder skeleton (one home page). No features are built and nothing is deployed.
-- T-000 and T-001 are Done: D-01 (Django), D-03 (order model), D-06, D-07 and D-08 (webhook) are accepted. Hosting (D-02) is still open (T-002, proposal in ADR-0007). T-010 (project skeleton) is **Ready for review**; current task: [tasks/CURRENT.md](tasks/CURRENT.md).
+- T-000, T-001 and T-010 are Done: D-01 (Django), D-03 (order model), D-06, D-07 and D-08 (webhook) are accepted. Hosting (D-02) is still open (T-002, proposal in ADR-0007). T-011 (configuration and secrets) is **Ready for review**; current task: [tasks/CURRENT.md](tasks/CURRENT.md).
 
 ## Where to look (single source of truth per topic)
 | Topic | Document |
@@ -53,15 +53,33 @@ Implementation happens on the Owner's Ubuntu laptop. Termux is used only for Mar
 ### First-time setup (Ubuntu)
 ```bash
 python3 --version                      # expect 3.12 or newer
+sudo apt install python3-venv          # only if the next line says ensurepip is not available
 python3 -m venv .venv
 source .venv/bin/activate
 pip install -r requirements-dev.txt
 ```
 
+### Configuration (environment variables)
+The app reads its settings from environment variables and **refuses to start** with a clear message if one is missing or unsafe. The message names the variable, never its value. Names are documented in [.env.example](.env.example).
+
+| Variable | Development | Production |
+|----------|-------------|------------|
+| `APP_ENV` | required: `development` | required: `production` |
+| `SECRET_KEY` | optional (a local placeholder is used) | required, at least 50 characters, unique to the site |
+| `ALLOWED_HOSTS` | optional (defaults to `localhost,127.0.0.1`) | required, comma-separated, no `*` |
+
+Set them once per terminal session (Git ignores your `.env`; never commit it or paste its contents into chats):
+```bash
+cp .env.example .env                   # first time only, then edit .env
+set -a; . ./.env; set +a            # load the variables
+python -c "import secrets; print(secrets.token_urlsafe(64))"   # to generate a SECRET_KEY
+```
+`pytest` ignores your shell variables and always runs in development mode.
+
 ### Every time
 ```bash
 source .venv/bin/activate
-export APP_ENV=development             # turns debug on for local use only
+set -a; . ./.env; set +a            # loads APP_ENV=development and the rest
 python manage.py runserver             # then open http://127.0.0.1:8000/
 ```
 
@@ -71,4 +89,4 @@ ruff format .          # format code
 ruff check .           # lint
 pytest                 # tests
 ```
-More detail: [docs/TESTING.md](docs/TESTING.md). Without `APP_ENV=development` the app runs in the safe production-like mode (debug off).
+More detail: [docs/TESTING.md](docs/TESTING.md). Without `APP_ENV` set, commands such as `runserver` stop with a clear message. Debug is on only when `APP_ENV=development`.

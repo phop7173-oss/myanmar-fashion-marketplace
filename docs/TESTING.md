@@ -11,9 +11,9 @@ Run from the project folder with the virtual environment active (setup: [README]
 | (1) Lint | `ruff check .` |
 | (2) Unit tests | `pytest` |
 | (3) Full suite including database tests | `pytest` (same command until T-012 adds a database; then database tests join it) |
-| Django configuration check | `python manage.py check` |
+| Django configuration check | `APP_ENV=development python manage.py check` |
 
-Notes: ruff also checks Python code blocks inside the Markdown docs. `python manage.py check --deploy` currently reports 4 expected warnings (HTTPS settings and the development placeholder secret key); T-011 and T-063 resolve them.
+Notes: ruff also checks Python code blocks inside the Markdown docs. With a valid production configuration, `python manage.py check --deploy` reports 3 expected warnings (HSTS, SSL redirect, secure CSRF cookie); T-063 resolves them with the chosen host. `pytest` forces development mode (`config/settings_test.py`), so results do not depend on your shell variables; startup tests run the real settings in a fresh process.
 
 ## Layers
 | Layer | Covers |

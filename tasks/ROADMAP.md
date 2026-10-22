@@ -16,7 +16,7 @@ Ordered sequence from documentation to a pilot-ready MVP. Task cards (full detai
 | T-001 | Resolve blocking decisions | T-000 Done | Done | [01](cards/01-foundation.md) |
 | T-002 | Verify hosting and free-tier facts | T-001 | Ready for review | [01](cards/01-foundation.md) |
 | T-010 | Project skeleton and tooling | T-001 Done (D-01 Accepted) | Done | [01](cards/01-foundation.md) |
-| T-011 | Configuration and secrets handling | T-010 | Blocked | [01](cards/01-foundation.md) |
+| T-011 | Configuration and secrets handling | T-010 | Done | [01](cards/01-foundation.md) |
 | T-012 | Local database and migration baseline | T-011 | Blocked | [01](cards/01-foundation.md) |
 | T-013 | Continuous integration | T-012 | Blocked | [01](cards/01-foundation.md) |
 | T-020 | Catalog schema and constraints | T-012, D-07 categories | Blocked | [02](cards/02-catalog-admin.md) |
