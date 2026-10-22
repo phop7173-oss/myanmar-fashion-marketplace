@@ -25,7 +25,7 @@ Also accepted (from the original charter, no separate ADR needed): English-first
 
 | ID | Question | Recommended default | Blocks | Detail |
 |----|----------|---------------------|--------|--------|
-| D-02 | Hosting + database provider under zero budget | None chosen. Verify candidates in T-002 | T-063; real-world webhook testing | [0005](0005-platform-baseline.md), [TECH-STACK](../TECH-STACK.md) |
+| D-02 | Hosting + database provider under zero budget | **Proposed in [ADR-0007](0007-hosting.md) (not accepted; Oracle Always Free VM conditional on Owner checks; Render free + Neon free as demo fallback)** | T-063; real-world webhook testing | [0005](0005-platform-baseline.md), [TECH-STACK](../TECH-STACK.md) |
 | D-04 | Business operations: revenue model, who delivers, returns policy, how payment happens, pilot success thresholds | None. Owner must define | T-064 (go/no-go) | [PROJECT](../PROJECT.md) |
 | D-05 | Customer data retention period and privacy notice | Erase/anonymize personal data 12 months after order completion (PROVISIONAL) | T-064 | [SECURITY](../SECURITY.md) |
 | D-09 | Legal/regulatory check for operating in Myanmar (registration, e-commerce, data protection) | Human task; AI cannot advise | Launch with real customers | [PROJECT](../PROJECT.md) |

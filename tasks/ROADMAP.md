@@ -14,7 +14,7 @@ Ordered sequence from documentation to a pilot-ready MVP. Task cards (full detai
 |----|------|-------------|--------|------|
 | T-000 | Documentation baseline v2 | none | Ready for review | [01](cards/01-foundation.md) |
 | T-001 | Resolve blocking decisions | T-000 Done | Ready for review | [01](cards/01-foundation.md) |
-| T-002 | Verify hosting and free-tier facts | T-001 | Not started | [01](cards/01-foundation.md) |
+| T-002 | Verify hosting and free-tier facts | T-001 | Ready for review | [01](cards/01-foundation.md) |
 | T-010 | Project skeleton and tooling | T-001 Done (D-01 Accepted) | Blocked: Owner marks T-001 Done | [01](cards/01-foundation.md) |
 | T-011 | Configuration and secrets handling | T-010 | Blocked | [01](cards/01-foundation.md) |
 | T-012 | Local database and migration baseline | T-011 | Blocked | [01](cards/01-foundation.md) |

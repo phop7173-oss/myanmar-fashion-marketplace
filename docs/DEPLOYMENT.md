@@ -1,6 +1,6 @@
 # Deployment, Backup and Recovery
 
-**Authoritative for:** environments, configuration, release checks, backups, runbooks. Hosting is **not chosen** (D-02); nothing here claims any provider's terms ([TECH-STACK](TECH-STACK.md#unverified-items-must-be-checked-from-official-sources-before-relying-on-them)).
+**Authoritative for:** environments, configuration, release checks, backups, runbooks. Hosting is **not chosen** (D-02; proposal in [ADR-0007](decisions/0007-hosting.md)); nothing here claims any provider's terms ([TECH-STACK](TECH-STACK.md#unverified-items-must-be-checked-from-official-sources-before-relying-on-them)).
 
 ## Environments
 - **Local (Ubuntu laptop):** development with synthetic data, local PostgreSQL, separate credentials.
