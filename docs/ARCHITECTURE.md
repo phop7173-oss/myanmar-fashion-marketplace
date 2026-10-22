@@ -27,7 +27,20 @@ Everything left of the service layer is untrusted input. The database enforces i
 See [DATA-MODEL](DATA-MODEL.md). In one line: product -> product variants; seller offer = (seller, product); offer variant = (offer, product variant) holding price and stock; order -> order items (snapshots).
 
 ## Repository layout
-Defined by task T-010 and recorded here afterward. Until then **no application directories exist**; AI agents must not assume any.
+Created by T-010 (2026-10-23). Only these exist; AI agents must not assume others.
+```
+manage.py                  Django command-line entry point
+pyproject.toml             ruff and pytest configuration
+requirements.txt           pinned runtime dependencies (lockfile)
+requirements-dev.txt       pinned development/test dependencies (lockfile)
+config/                    project settings, URL routing, WSGI entry point
+storefront/                customer-facing app (placeholder home page only)
+  templates/storefront/    page templates
+  static/storefront/       the single small CSS file
+  tests/                   storefront tests
+docs/  tasks/              documentation and task cards
+```
+No database, models, login, admin or bot exist yet (T-012 and later).
 
 ## Scope tiers
 

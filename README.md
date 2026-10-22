@@ -3,9 +3,8 @@
 A mobile-first, low-bandwidth marketplace for clothing and fashion in Myanmar, built as a **zero-budget pilot** with a small group of curated sellers. Customers order through a platform form; admin confirms orders manually; sellers update prices and stock through a guided Telegram bot.
 
 ## Current status
-- **Phase 0: documentation and decisions. No application code exists yet.** Nothing has been built, tested or deployed.
-- Documentation baseline v2 is written and **awaiting Owner review** (task T-000, see [tasks/CURRENT.md](tasks/CURRENT.md)).
-- T-001 (blocking decisions) is **Ready for review**: D-01 (Django), D-03 (order model), D-06, D-07 and D-08 (webhook) are accepted. Hosting (D-02) is still open (T-002). Scaffolding (T-010) starts only after the Owner marks T-000 and T-001 Done.
+- **Phase 1 started.** The documentation baseline and decisions are in place; the only application code is a placeholder skeleton (one home page). No features are built and nothing is deployed.
+- T-000 and T-001 are Done: D-01 (Django), D-03 (order model), D-06, D-07 and D-08 (webhook) are accepted. Hosting (D-02) is still open (T-002, proposal in ADR-0007). T-010 (project skeleton) is **Ready for review**; current task: [tasks/CURRENT.md](tasks/CURRENT.md).
 
 ## Where to look (single source of truth per topic)
 | Topic | Document |
@@ -49,4 +48,27 @@ Each rule is stated in one place; other documents link to it.
 - **UNVERIFIED:** an external fact (price, limit, behavior) that must be checked in official sources before use.
 
 ## Development environment
-Implementation happens on the Owner's Ubuntu laptop. Termux is used only for Markdown and Git synchronization. GitHub is the shared source of truth. Run/setup instructions will be added here by task T-010.
+Implementation happens on the Owner's Ubuntu laptop. Termux is used only for Markdown and Git synchronization. GitHub is the shared source of truth. 
+
+### First-time setup (Ubuntu)
+```bash
+python3 --version                      # expect 3.12 or newer
+python3 -m venv .venv
+source .venv/bin/activate
+pip install -r requirements-dev.txt
+```
+
+### Every time
+```bash
+source .venv/bin/activate
+export APP_ENV=development             # turns debug on for local use only
+python manage.py runserver             # then open http://127.0.0.1:8000/
+```
+
+### Check your work
+```bash
+ruff format .          # format code
+ruff check .           # lint
+pytest                 # tests
+```
+More detail: [docs/TESTING.md](docs/TESTING.md). Without `APP_ENV=development` the app runs in the safe production-like mode (debug off).

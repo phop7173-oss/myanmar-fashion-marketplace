@@ -3,7 +3,17 @@
 **Authoritative for:** how we test and what counts as evidence. What must be true: [ACCEPTANCE-TESTS](ACCEPTANCE-TESTS.md). Tests are the enforcement mechanism for security and data rules.
 
 ## Commands
-Defined by task T-010 and written here afterward: one command each for (1) format/lint, (2) unit tests, (3) full test suite including database tests. Until T-010 is done, no test commands exist and none may be claimed.
+Run from the project folder with the virtual environment active (setup: [README](../README.md#development-environment)).
+
+| Purpose | Command |
+|---------|---------|
+| (1) Format | `ruff format .` (add `--check` to only check) |
+| (1) Lint | `ruff check .` |
+| (2) Unit tests | `pytest` |
+| (3) Full suite including database tests | `pytest` (same command until T-012 adds a database; then database tests join it) |
+| Django configuration check | `python manage.py check` |
+
+Notes: ruff also checks Python code blocks inside the Markdown docs. `python manage.py check --deploy` currently reports 4 expected warnings (HTTPS settings and the development placeholder secret key); T-011 and T-063 resolve them.
 
 ## Layers
 | Layer | Covers |

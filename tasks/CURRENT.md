@@ -1,22 +1,22 @@
 # Current Task
 
-**Task:** T-002 Verify hosting and free-tier facts ([card](cards/01-foundation.md#t-002-verify-hosting-and-free-tier-facts))
-**Status:** Ready for review (research done 2026-10-20; **not yet accepted by the Owner**)
+**Task:** T-010 Project skeleton and tooling ([card](cards/01-foundation.md#t-010-project-skeleton-and-tooling))
+**Status:** Ready for review (built 2026-10-23; **not yet run or accepted by the Owner**)
 
-## Result
-- U1-U12 table in [TECH-STACK](../docs/TECH-STACK.md) updated with sources and status; several items remain UNVERIFIED and need Owner-side checks.
-- New ADR [0007-hosting](../docs/decisions/0007-hosting.md) is **Proposed**. No candidate was verified to meet every requirement.
+## What was built
+Minimal Django 5.2 LTS project: `config/`, one `storefront` app with a placeholder home page, one trivial test, one small CSS file, pinned lockfiles, ruff and pytest configuration. No database, models, login or CI (non-goals).
 
-## What the Owner must do to close T-002
-- [ ] Read ADR-0007 and run the Owner-side checks A-D (signup from Myanmar, card, Telegram on sellers' phones, Burmese text).
-- [ ] Accept, change or reject ADR-0007 (decides D-02). Mark T-002 `Done` in [ROADMAP.md](ROADMAP.md).
+## What the Owner must do to close T-010
+- [ ] Follow the setup in [README](../README.md#development-environment) on your own machine.
+- [ ] Run `ruff format --check .`, `ruff check .` and `pytest`; open the home page with `python manage.py runserver`.
+- [ ] Report anything that fails (paste the exact error). Then mark T-010 `Done` in [ROADMAP.md](ROADMAP.md).
 
-## Earlier task
-T-001 (blocking decisions) is Ready for review; the Owner marks T-000 and T-001 Done when satisfied.
+## Other open items
+- T-002 (hosting research) is Ready for review; ADR-0007 is Proposed and needs your checks A-D.
 
 ## Next task
-T-010 Project skeleton (needs T-001 Done and an Owner-approved plan; does not depend on T-002).
+T-011 Configuration and secrets handling (needs T-010 Done).
 
 ## Rules
 - Only one task is current at a time. Change this file only when the Owner starts a different task.
-- No application code exists. Do not claim tests, commits or deployments succeeded unless verified in the session that did the work.
+- Do not claim tests, commits or deployments succeeded unless verified in the session that did the work.

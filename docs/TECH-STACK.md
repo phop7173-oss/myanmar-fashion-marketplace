@@ -7,17 +7,21 @@
 ## Chosen baseline (Option B, accepted)
 | Area | Choice | Notes |
 |------|--------|-------|
-| Language | Python (current supported 3.x; version chosen and pinned in T-010) | One language for web, admin and bot |
-| Web framework | Django | Built-in auth, admin, CSRF, ORM, migrations |
+| Language | Python 3.12 (T-010 was run on 3.12.3) | One language for web, admin and bot |
+| Web framework | Django 5.2 LTS (pinned 5.2.18) | Built-in auth, admin, CSRF, ORM, migrations |
 | Database | PostgreSQL | Same engine locally and in production |
 | UI | Server-rendered templates, one small hand-written CSS file, minimal vanilla JavaScript only where required | No client framework, no Tailwind, no web fonts |
 | Telegram | Webhook endpoint in the same app; plain HTTPS calls or a small maintained library chosen in T-052 | Webhook mode accepted (D-08); polling only if the chosen host cannot receive webhooks |
 | Images | Pillow | Processing at upload time |
-| Tests | pytest (+ Django test support) | Browser end-to-end tests optional, added only if needed |
-| Lint/format | ruff | One tool |
+| Tests | pytest 9.1.1 + pytest-django 4.14.0 | Browser end-to-end tests optional, added only if needed |
+| Lint/format | ruff 0.17.2 | One tool |
 | Source control | Git + GitHub | |
 
-Exact package versions are **not** fixed in documentation. T-010 selects current supported releases, records them in the committed lockfile, and states the choice in the task report.
+**Versions (T-010, chosen 2026-10-23).** The committed lockfiles are the source of truth: [requirements.txt](../requirements.txt) (runtime) and [requirements-dev.txt](../requirements-dev.txt) (tools and tests), both pinned exactly. Latest releases were read from PyPI on that date (Django 5.2.18, ruff 0.17.2, pytest 9.1.1, pytest-django 4.14.0).
+
+**Why Django 5.2 LTS and not 6.1.** djangoproject.com/download lists 5.2 as a long-term-support release with security fixes until April 2028, and 6.2 LTS as due April 2027; 6.1 is the current feature release with a much shorter support window. For a beginner-maintained pilot, one LTS avoids a forced upgrade within months. Plan to move to 6.2 LTS when it is released and stable. Python 3.12 compatibility with Django 5.2 is taken from third-party sources (UNVERIFIED against Django's own documentation); the T-010 test run on 3.12.3 passed.
+
+**Rule:** lockfiles change only with Owner approval of the dependency (AGENTS.md R8). Regenerate them deliberately, never casually.
 
 ## Not chosen (Option A: original proposal)
 Next.js (App Router), strict TypeScript, Tailwind, PostgreSQL, Sharp, Vitest, Playwright, separate Python bot worker. If ever revisited, update this file, [CODE-STYLE](CODE-STYLE.md) and task cards, and remove the unused Supabase variables from `.env.example` (see ADR-0005).

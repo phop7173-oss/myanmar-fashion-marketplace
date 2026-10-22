@@ -1,0 +1,17 @@
+# Purpose: configuration for the formatter/linter (ruff) and the test runner (pytest).
+[tool.ruff]
+line-length = 100
+target-version = "py312"
+
+[tool.ruff.lint]
+# E/F: pycodestyle and pyflakes errors; I: import order; B: likely bugs;
+# S: security checks; UP: modern syntax; ANN: require type hints (CODE-STYLE rule 16).
+select = ["E", "F", "I", "B", "S", "UP", "ANN"]
+
+[tool.ruff.lint.per-file-ignores]
+# `assert` is how pytest tests check results.
+"**/tests/**" = ["S101"]
+
+[tool.pytest.ini_options]
+DJANGO_SETTINGS_MODULE = "config.settings"
+python_files = ["test_*.py"]
