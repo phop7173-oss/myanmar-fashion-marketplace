@@ -37,10 +37,11 @@ config/                    project settings, URL routing, WSGI entry point
 storefront/                customer-facing app (placeholder home page only)
   templates/storefront/    page templates
   static/storefront/       the single small CSS file
+  migrations/              database migrations (one empty baseline so far)
   tests/                   storefront tests
 docs/  tasks/              documentation and task cards
 ```
-No database, models, login, admin or bot exist yet (T-012 and later).
+A PostgreSQL connection and one empty baseline migration exist (T-012). No models, login, admin or bot exist yet.
 
 ## Scope tiers
 

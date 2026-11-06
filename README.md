@@ -4,7 +4,7 @@ A mobile-first, low-bandwidth marketplace for clothing and fashion in Myanmar, b
 
 ## Current status
 - **Phase 1 started.** The documentation baseline and decisions are in place; the only application code is a placeholder skeleton (one home page). No features are built and nothing is deployed.
-- T-000, T-001 and T-010 are Done: D-01 (Django), D-03 (order model), D-06, D-07 and D-08 (webhook) are accepted. Hosting (D-02) is still open (T-002, proposal in ADR-0007). T-011 (configuration and secrets) is **Ready for review**; current task: [tasks/CURRENT.md](tasks/CURRENT.md).
+- T-000, T-001, T-010 and T-011 are Done: D-01 (Django), D-03 (order model), D-06, D-07 and D-08 (webhook) are accepted. Hosting (D-02) is still open (T-002, proposal in ADR-0007). T-012 (local database and migrations) is **Ready for review**; current task: [tasks/CURRENT.md](tasks/CURRENT.md).
 
 ## Where to look (single source of truth per topic)
 | Topic | Document |
@@ -67,6 +67,7 @@ The app reads its settings from environment variables and **refuses to start** w
 | `APP_ENV` | required: `development` | required: `production` |
 | `SECRET_KEY` | optional (a local placeholder is used) | required, at least 50 characters, unique to the site |
 | `ALLOWED_HOSTS` | optional (defaults to `localhost,127.0.0.1`) | required, comma-separated, no `*` |
+| `DATABASE_URL` | required: `postgresql://USER:PASSWORD@HOST:5432/DATABASE_NAME` | required, with a password; a database on another machine must end with `?sslmode=require` |
 
 Set them once per terminal session (Git ignores your `.env`; never commit it or paste its contents into chats):
 ```bash
@@ -74,12 +75,39 @@ cp .env.example .env                   # first time only, then edit .env
 set -a; . ./.env; set +a            # load the variables
 python -c "import secrets; print(secrets.token_urlsafe(64))"   # to generate a SECRET_KEY
 ```
-`pytest` ignores your shell variables and always runs in development mode.
+`pytest` ignores `APP_ENV`, `SECRET_KEY` and `ALLOWED_HOSTS` from your shell and always runs in development mode, but it **needs `DATABASE_URL`** and a running PostgreSQL, so load `.env` first.
+
+### Local database (PostgreSQL)
+Ubuntu 26.04 already provides PostgreSQL (18 when this was written). Install it only if missing: `sudo apt install postgresql`. Then, once:
+```bash
+systemctl is-active postgresql                                   # expect: active
+sudo -u postgres createuser --createdb --pwprompt marketplace    # asks for a NEW password (typing is hidden)
+sudo -u postgres createdb --owner=marketplace marketplace_dev
+```
+Edit `.env` and replace `CHANGE_ME` in `DATABASE_URL` with that password (letters and digits only). Check the login (it asks for the password and should print a table containing `1`):
+```bash
+psql "postgresql://marketplace@localhost:5432/marketplace_dev" -c "SELECT 1"
+```
+Then create the migration bookkeeping and apply the baseline migration:
+```bash
+python manage.py migrate     # first run: "Applying storefront.0001_initial... OK"; second run: "No migrations to apply."
+```
+The `marketplace` role may create databases only so the tests can build their own throwaway `test_marketplace_dev` database; your development data is never touched. **Never put production credentials in your local `.env`.**
+
+| If you see | It usually means | Fix |
+|------------|------------------|-----|
+| `connection refused` | PostgreSQL is not running | `sudo systemctl start postgresql` |
+| `password authentication failed` | wrong password in `DATABASE_URL` | `sudo -u postgres psql`, then `\password marketplace`, then update `.env` |
+| `role "marketplace" already exists` or `database ... already exists` | already created earlier | skip that command |
+| `password authentication failed` (from `pytest` or `migrate`) | `.env` still has `CHANGE_ME` (check: `grep -c CHANGE_ME .env` must print `0`), or the role does not exist (`sudo -u postgres psql -c "\du"` lists roles) | edit `.env` with `nano .env` (not `sed`, which stores the password in your shell history), reload it, then test: `psql "$DATABASE_URL" -c "SELECT 1"` |
+| `permission denied to create database` (from `pytest`) | the role lacks permission | `sudo -u postgres psql -c "ALTER ROLE marketplace CREATEDB"` |
+| `DATABASE_URL is required` | `.env` not loaded in this terminal | `set -a; . ./.env; set +a` |
 
 ### Every time
 ```bash
 source .venv/bin/activate
 set -a; . ./.env; set +a            # loads APP_ENV=development and the rest
+python manage.py migrate               # applies any new database migrations (does nothing if none)
 python manage.py runserver             # then open http://127.0.0.1:8000/
 ```
 

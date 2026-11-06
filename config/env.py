@@ -1,7 +1,8 @@
 # Purpose: read and validate environment variables for the settings. Errors name the
 # variable and the rule, and never print a value (SECURITY: Secrets).
 from collections.abc import Mapping
-from dataclasses import dataclass
+from dataclasses import dataclass, field
+from urllib.parse import parse_qsl, unquote, urlsplit
 
 from django.core.exceptions import ImproperlyConfigured
 
@@ -12,8 +13,9 @@ VALID_APP_ENVS = (APP_ENV_DEVELOPMENT, APP_ENV_PRODUCTION)
 ENV_APP_ENV = "APP_ENV"
 ENV_SECRET_KEY = "SECRET_KEY"  # noqa: S105 (this is a variable NAME, not a secret)
 ENV_ALLOWED_HOSTS = "ALLOWED_HOSTS"
+ENV_DATABASE_URL = "DATABASE_URL"
 # Every variable this module reads; a test checks each one is listed in .env.example.
-ENV_VARIABLE_NAMES = (ENV_APP_ENV, ENV_SECRET_KEY, ENV_ALLOWED_HOSTS)
+ENV_VARIABLE_NAMES = (ENV_APP_ENV, ENV_SECRET_KEY, ENV_ALLOWED_HOSTS, ENV_DATABASE_URL)
 
 # Local-only placeholder so `runserver` works with nothing set. It is NOT a secret and is
 # rejected in production.
@@ -25,6 +27,42 @@ MIN_SECRET_KEY_LENGTH = 50
 MIN_SECRET_KEY_UNIQUE_CHARACTERS = 5
 DJANGO_INSECURE_KEY_PREFIX = "django-insecure-"
 
+DATABASE_URL_SCHEMES = ("postgresql", "postgres")
+DEFAULT_DATABASE_PORT = 5432
+# A database on the same machine needs no encryption on the wire.
+LOCAL_DATABASE_HOSTS = ("localhost", "127.0.0.1", "::1")
+SECURE_SSL_MODES = ("require", "verify-ca", "verify-full")
+VALID_SSL_MODES = ("disable", "allow", "prefer", *SECURE_SSL_MODES)
+SSL_MODE_OPTION = "sslmode"
+
+
+@dataclass(frozen=True)
+class DatabaseConfig:
+    """PostgreSQL connection settings parsed from DATABASE_URL.
+
+    The password is excluded from repr() so printing or logging this object cannot leak it.
+    """
+
+    name: str
+    user: str
+    host: str
+    port: int
+    password: str = field(repr=False)
+    ssl_mode: str | None = None
+
+    def django_settings(self) -> dict[str, object]:
+        """Return this connection as a Django DATABASES entry."""
+        options = {SSL_MODE_OPTION: self.ssl_mode} if self.ssl_mode else {}
+        return {
+            "ENGINE": "django.db.backends.postgresql",
+            "NAME": self.name,
+            "USER": self.user,
+            "PASSWORD": self.password,
+            "HOST": self.host,
+            "PORT": str(self.port),
+            "OPTIONS": options,
+        }
+
 
 @dataclass(frozen=True)
 class AppConfig:
@@ -33,6 +71,7 @@ class AppConfig:
     app_env: str
     secret_key: str
     allowed_hosts: tuple[str, ...]
+    database: DatabaseConfig
 
     @property
     def is_development(self) -> bool:
@@ -44,7 +83,8 @@ def read_config(environ: Mapping[str, str]) -> AppConfig:
 
     Anyone may call it. Raises ImproperlyConfigured when a required variable is missing or
     invalid. Guarantee: a production configuration never has debug on, a weak or placeholder
-    secret key, or an empty or wildcard host list. Error messages never contain values.
+    secret key, an empty or wildcard host list, or an unencrypted connection to a remote
+    database. Error messages never contain values (the database URL holds a password).
     """
     app_env = _read_app_env(environ)
     is_development = app_env == APP_ENV_DEVELOPMENT
@@ -52,6 +92,7 @@ def read_config(environ: Mapping[str, str]) -> AppConfig:
         app_env=app_env,
         secret_key=_read_secret_key(environ, is_development),
         allowed_hosts=_read_allowed_hosts(environ, is_development),
+        database=_read_database(environ, is_development),
     )
 
 
@@ -104,3 +145,59 @@ def _read_allowed_hosts(environ: Mapping[str, str], is_development: bool) -> tup
     if "*" in hosts:
         raise ImproperlyConfigured(f"{ENV_ALLOWED_HOSTS} must not contain '*' in production.")
     return hosts
+
+
+def _read_database(environ: Mapping[str, str], is_development: bool) -> DatabaseConfig:
+    raw_url = environ.get(ENV_DATABASE_URL, "").strip()
+    if not raw_url:
+        raise ImproperlyConfigured(
+            f"{ENV_DATABASE_URL} is required, in the form "
+            "postgresql://USER:PASSWORD@HOST:5432/DATABASE_NAME"
+        )
+    try:
+        parts = urlsplit(raw_url)
+        port = parts.port or DEFAULT_DATABASE_PORT
+    except ValueError:
+        raise ImproperlyConfigured(
+            f"{ENV_DATABASE_URL} is not a valid URL (check the port number and that special "
+            "characters in the password are percent-encoded)."
+        ) from None
+    if parts.scheme not in DATABASE_URL_SCHEMES:
+        raise ImproperlyConfigured(f"{ENV_DATABASE_URL} must start with postgresql://")
+    host = parts.hostname or ""
+    if not host:
+        raise ImproperlyConfigured(f"{ENV_DATABASE_URL} must include a host name.")
+    user = unquote(parts.username or "")
+    if not user:
+        raise ImproperlyConfigured(f"{ENV_DATABASE_URL} must include a user name.")
+    password = unquote(parts.password or "")
+    if not password and not is_development:
+        raise ImproperlyConfigured(f"{ENV_DATABASE_URL} must include a password in production.")
+    name = unquote(parts.path.removeprefix("/"))
+    if not name or "/" in name:
+        raise ImproperlyConfigured(f"{ENV_DATABASE_URL} must include one database name.")
+    ssl_mode = _read_ssl_mode(parts.query)
+    if not is_development and host not in LOCAL_DATABASE_HOSTS and ssl_mode not in SECURE_SSL_MODES:
+        raise ImproperlyConfigured(
+            f"In production, a database on another host needs {SSL_MODE_OPTION}=require "
+            f"(or stronger) in {ENV_DATABASE_URL}."
+        )
+    return DatabaseConfig(
+        name=name, user=user, host=host, port=port, password=password, ssl_mode=ssl_mode
+    )
+
+
+def _read_ssl_mode(query: str) -> str | None:
+    ssl_mode = None
+    for option, value in parse_qsl(query, keep_blank_values=True):
+        if option != SSL_MODE_OPTION:
+            raise ImproperlyConfigured(
+                f"{ENV_DATABASE_URL} has an unsupported option; only {SSL_MODE_OPTION} is allowed."
+            )
+        if value not in VALID_SSL_MODES:
+            raise ImproperlyConfigured(
+                f"{SSL_MODE_OPTION} in {ENV_DATABASE_URL} must be one of: "
+                f"{', '.join(VALID_SSL_MODES)}."
+            )
+        ssl_mode = value
+    return ssl_mode

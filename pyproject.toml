@@ -10,10 +10,13 @@ select = ["E", "F", "I", "B", "S", "UP", "ANN"]
 
 [tool.ruff.lint.per-file-ignores]
 # In tests only: `assert` is how pytest checks results (S101); fake secret values are
-# intentional (S105); the git/Python subprocesses run fixed commands, never user input
-# (S603, S607).
-"**/tests/**" = ["S101", "S105", "S603", "S607"]
+# intentional (S105, S106); the git/Python subprocesses run fixed commands, never user
+# input (S603, S607).
+"**/tests/**" = ["S101", "S105", "S106", "S603", "S607"]
 
 [tool.pytest.ini_options]
 DJANGO_SETTINGS_MODULE = "config.settings_test"
+# Short tracebacks: pytest's long format prints function arguments, and a failed database
+# connection would then print the whole connection string, password included.
+addopts = "--tb=short"
 python_files = ["test_*.py"]

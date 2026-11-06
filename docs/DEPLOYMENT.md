@@ -16,7 +16,8 @@ Environment variables only; names documented in `.env.example` with empty or pla
 | `APP_ENV` | T-011 | Required; `development` or `production`; debug is on only for `development` |
 | `SECRET_KEY` | T-011 | Production: required, at least 50 characters with at least 5 different characters, not a placeholder; development: optional |
 | `ALLOWED_HOSTS` | T-011 | Production: required, comma-separated, no `*`; development defaults to `localhost,127.0.0.1` |
-| `DATABASE_URL`, `IMAGE_STORAGE_PATH`, `TELEGRAM_*`, `PUBLIC_BASE_URL` | later tasks (T-012, T-025, T-052) | Not read yet |
+| `DATABASE_URL` | T-012 | Required in every mode; `postgresql://` URL (special characters in the password percent-encoded); production: password required, and a database on another host must use `sslmode=require` or stronger (a database on the same machine does not). Only the `sslmode` option is accepted |
+| `IMAGE_STORAGE_PATH`, `TELEGRAM_*`, `PUBLIC_BASE_URL` | later tasks (T-025, T-052) | Not read yet |
 
 HTTPS enforcement (redirect, HSTS, secure cookies) depends on the chosen host and is done in T-063.
 

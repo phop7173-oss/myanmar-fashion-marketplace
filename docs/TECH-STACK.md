@@ -10,6 +10,7 @@
 | Language | Python 3.12 (T-010 was run on 3.12.3) | One language for web, admin and bot |
 | Web framework | Django 5.2 LTS (pinned 5.2.18) | Built-in auth, admin, CSRF, ORM, migrations |
 | Database | PostgreSQL | Same engine locally and in production |
+| Database driver | psycopg 3, binary build (pinned 3.3.6) | Django 5.2 supports psycopg 3.1.8 or newer and recommends it over psycopg2 ([Django databases](https://docs.djangoproject.com/en/5.2/ref/databases)); prebuilt packages exist for Python 3.14 and 3.12 on x86-64 (checked 2026-10-23). Also installs `psycopg-binary` and `typing_extensions` |
 | UI | Server-rendered templates, one small hand-written CSS file, minimal vanilla JavaScript only where required | No client framework, no Tailwind, no web fonts |
 | Telegram | Webhook endpoint in the same app; plain HTTPS calls or a small maintained library chosen in T-052 | Webhook mode accepted (D-08); polling only if the chosen host cannot receive webhooks |
 | Images | Pillow | Processing at upload time |
@@ -47,7 +48,7 @@ Status after T-002 (read 2026-10-20). **Verified** = stated by the provider's or
 | U8 | Telegram usable by every pilot seller in Myanmar | UNVERIFIED | No source found either way. **Owner test on the sellers' real phones and networks** (ADR-0007 check C) |
 | U9 | GitHub features for this repo | Partly | GitHub Actions is free on standard runners in public repositories; Dependabot alerts included in GitHub Free ([GitHub plans](https://docs.github.com/en/enterprise-server@latest/get-started/learning-about-github/githubs-plans)). Secret scanning and push protection for public repos: UNVERIFIED (not stated in the text retrieved). The repository is **public**: never commit secrets or real data |
 | U10 | Burmese (Unicode) rendering on low-end Android; Zawgyi input | UNVERIFIED | Not researched in T-002. Owner device test (ADR-0007 check D) |
-| U11 | Available PostgreSQL version on the host | UNVERIFIED | Not found for any candidate; on an Oracle VM you choose the version yourself. Check at T-012 |
+| U11 | Available PostgreSQL version on the host | Partly | **Local machine (T-012, 2026-10-23):** PostgreSQL 18.6 on Ubuntu 26.04, reported by the Owner. Django 5.2 supports PostgreSQL 14 or newer ([Django databases](https://docs.djangoproject.com/en/5.2/ref/databases)). The AI sandbox tests ran on PostgreSQL 16.15, so the Owner's run on 18 is the real evidence. **Hosting providers:** not found for any candidate; on an Oracle VM you choose the version yourself. Re-check at T-063 |
 | U12 | Free subdomain acceptable for the pilot | UNVERIFIED | Render offers an onrender.com subdomain. Whether customers and sellers trust it is an Owner judgment. A stable domain of your own costs money |
 
 Candidate hosting categories to examine in T-002 (no claims made here): free web-app platforms, free managed PostgreSQL, a free cloud VM, or the owner's own machine exposed through a free tunnel (lowest cost, lowest reliability).

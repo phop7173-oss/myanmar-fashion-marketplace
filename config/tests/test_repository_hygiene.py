@@ -3,6 +3,7 @@
 import re
 import subprocess
 from pathlib import Path
+from urllib.parse import urlsplit
 
 from config.env import ENV_VARIABLE_NAMES
 
@@ -51,6 +52,13 @@ def test_no_dotenv_file_is_tracked_by_git() -> None:
 
 def test_env_example_lists_every_variable_the_app_reads() -> None:
     assert set(ENV_VARIABLE_NAMES) <= set(example_variables())
+
+
+def test_env_example_database_url_has_only_a_placeholder_password() -> None:
+    # The URL holds a password, so its value must show the format with a placeholder only.
+    password = urlsplit(example_variables()["DATABASE_URL"]).password
+
+    assert password in (None, "", "CHANGE_ME")
 
 
 def test_env_example_holds_no_secret_values() -> None:

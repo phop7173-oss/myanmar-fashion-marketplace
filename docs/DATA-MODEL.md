@@ -116,3 +116,5 @@ Create only those listed above, plus any added with query-plan evidence recorded
 
 ## Migrations
 Reviewed in the plan step; never edit an applied migration; destructive changes (drop/rename/data loss) need explicit owner approval and a backup first. Each migration is tested on a fresh database. Rollback approach: [DEPLOYMENT](DEPLOYMENT.md#rollback).
+
+Commands (T-012): create with `python manage.py makemigrations`, then **read the generated file** before applying it with `python manage.py migrate`. `python manage.py makemigrations --check --dry-run` fails when a model change has no migration (a test runs it). `storefront/migrations/0001_initial.py` is intentionally empty: it only proves the tool works against PostgreSQL.

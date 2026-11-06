@@ -41,8 +41,8 @@ TEMPLATES = [
 
 WSGI_APPLICATION = "config.wsgi.application"
 
-# Intentionally empty: the skeleton has no database. T-012 configures PostgreSQL.
-DATABASES: dict[str, dict[str, str]] = {}
+# PostgreSQL connection, parsed and validated from DATABASE_URL (see config/env.py).
+DATABASES = {"default": _config.database.django_settings()}
 
 LANGUAGE_CODE = "en"
 TIME_ZONE = "UTC"

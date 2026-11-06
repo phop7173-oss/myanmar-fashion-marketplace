@@ -1,4 +1,7 @@
-# Runtime dependencies, pinned exactly (T-010). Regenerate deliberately, never casually.
+# Runtime dependencies, pinned exactly (T-010, T-012). Regenerate deliberately, never casually.
 asgiref==3.12.1
 Django==5.2.18
+psycopg==3.3.6
+psycopg-binary==3.3.6
 sqlparse==0.6.0
+typing_extensions==4.16.0

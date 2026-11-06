@@ -8,6 +8,7 @@ from pathlib import Path
 PROJECT_ROOT = Path(__file__).resolve().parent.parent.parent
 FAKE_SECRET_VALUE = "fake-short-secret-value-for-test"
 FAKE_VALID_KEY = "fake-test-key-" + "abcdefghij" * 4
+FAKE_DATABASE_URL = "postgresql://fake_user:fake-db-password@localhost:5432/fake_db"
 
 
 def import_settings(environ: dict[str, str]) -> subprocess.CompletedProcess[str]:
@@ -33,7 +34,13 @@ def test_startup_fails_when_app_env_is_missing() -> None:
 
 
 def test_startup_fails_in_production_without_secret_key() -> None:
-    result = import_settings({"APP_ENV": "production", "ALLOWED_HOSTS": "shop.example.test"})
+    result = import_settings(
+        {
+            "APP_ENV": "production",
+            "ALLOWED_HOSTS": "shop.example.test",
+            "DATABASE_URL": FAKE_DATABASE_URL,
+        }
+    )
 
     assert result.returncode != 0
     assert "SECRET_KEY is required" in result.stderr
@@ -45,6 +52,7 @@ def test_startup_failure_does_not_print_the_secret_value() -> None:
             "APP_ENV": "production",
             "SECRET_KEY": FAKE_SECRET_VALUE,
             "ALLOWED_HOSTS": "shop.example.test",
+            "DATABASE_URL": FAKE_DATABASE_URL,
         }
     )
 
@@ -60,13 +68,62 @@ def test_startup_succeeds_with_a_valid_production_configuration() -> None:
             "APP_ENV": "production",
             "SECRET_KEY": FAKE_VALID_KEY,
             "ALLOWED_HOSTS": "shop.example.test",
+            "DATABASE_URL": FAKE_DATABASE_URL,
         }
     )
 
     assert result.returncode == 0, result.stderr
 
 
-def test_startup_succeeds_in_development_with_nothing_else_set() -> None:
-    result = import_settings({"APP_ENV": "development"})
+def test_startup_succeeds_in_development_with_only_a_database_url() -> None:
+    result = import_settings({"APP_ENV": "development", "DATABASE_URL": FAKE_DATABASE_URL})
 
     assert result.returncode == 0, result.stderr
+
+
+def test_startup_fails_without_a_database_url_and_names_the_variable() -> None:
+    result = import_settings({"APP_ENV": "development"})
+
+    assert result.returncode != 0
+    assert "DATABASE_URL is required" in result.stderr
+
+
+def test_startup_failure_does_not_print_the_database_password() -> None:
+    fake_password = "fake-password-must-not-appear"
+    url = f"postgresql://fake_user:{fake_password}@localhost:notaport/fake_db"
+
+    result = import_settings({"APP_ENV": "development", "DATABASE_URL": url})
+
+    assert result.returncode != 0
+    assert "DATABASE_URL" in result.stderr
+    assert fake_password not in result.stderr
+    assert fake_password not in result.stdout
+
+
+def test_pytest_failure_output_does_not_print_the_database_password() -> None:
+    # A failed database connection used to make pytest print the whole connection string.
+    fake_password = "fake-password-pytest-must-not-print"
+    url = f"postgresql://fake_user:{fake_password}@localhost:5432/fake_db"
+    clean_environ = {"PATH": os.environ.get("PATH", ""), "DATABASE_URL": url}
+
+    result = subprocess.run(
+        [
+            sys.executable,
+            "-m",
+            "pytest",
+            "-q",
+            "-p",
+            "no:cacheprovider",
+            "config/tests/test_database.py",
+        ],
+        cwd=PROJECT_ROOT,
+        env=clean_environ,
+        capture_output=True,
+        text=True,
+        timeout=120,
+        check=False,
+    )
+
+    assert result.returncode != 0, "the fake database should not be reachable"
+    assert fake_password not in result.stdout
+    assert fake_password not in result.stderr

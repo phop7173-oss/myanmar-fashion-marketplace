@@ -10,10 +10,12 @@ Run from the project folder with the virtual environment active (setup: [README]
 | (1) Format | `ruff format .` (add `--check` to only check) |
 | (1) Lint | `ruff check .` |
 | (2) Unit tests | `pytest` |
-| (3) Full suite including database tests | `pytest` (same command until T-012 adds a database; then database tests join it) |
+| (3) Full suite including database tests | `pytest` (database tests are part of it; they need PostgreSQL running and `DATABASE_URL` set, see [README](../README.md#local-database-postgresql)) |
+| Fresh test database (migrations from scratch) | `pytest --create-db` |
+| No migration missing | `APP_ENV=development python manage.py makemigrations --check --dry-run` (a test also does this) |
 | Django configuration check | `APP_ENV=development python manage.py check` |
 
-Notes: ruff also checks Python code blocks inside the Markdown docs. With a valid production configuration, `python manage.py check --deploy` reports 3 expected warnings (HSTS, SSL redirect, secure CSRF cookie); T-063 resolves them with the chosen host. `pytest` forces development mode (`config/settings_test.py`), so results do not depend on your shell variables; startup tests run the real settings in a fresh process.
+Notes: `pytest` uses short tracebacks (`--tb=short` in `pyproject.toml`) because long ones print function arguments, and a failed database connection would then print the connection string with its password; a test guards this. For even terser database errors use `pytest --tb=line`. ruff also checks Python code blocks inside the Markdown docs. With a valid production configuration, `python manage.py check --deploy` reports 3 expected warnings (HSTS, SSL redirect, secure CSRF cookie); T-063 resolves them with the chosen host. `pytest` forces development mode (`config/settings_test.py`), so `APP_ENV`, `SECRET_KEY` and `ALLOWED_HOSTS` from your shell are ignored (`DATABASE_URL` is still read, and pytest-django builds its own `test_...` database, never touching development data); startup tests run the real settings in a fresh process.
 
 ## Layers
 | Layer | Covers |
